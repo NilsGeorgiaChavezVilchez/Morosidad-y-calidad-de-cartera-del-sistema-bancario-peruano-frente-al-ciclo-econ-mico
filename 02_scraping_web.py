@@ -14,7 +14,7 @@ from pathlib import Path
 import time
 from datetime import datetime
 
-FECHA_INICIO = "2005-01-01"
+FECHA_INICIO = "2010-01-01"
 FECHA_CORTE = "2025-12-31"
 
 # Serie adicional del BCRP como vía 2 opcional (descarga programática)

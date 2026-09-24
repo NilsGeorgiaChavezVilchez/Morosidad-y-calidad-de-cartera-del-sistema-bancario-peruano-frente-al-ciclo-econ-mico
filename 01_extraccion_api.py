@@ -11,7 +11,7 @@ from datetime import datetime
 # ============================================================
 # PARÁMETROS CONGELADOS (NO CAMBIAR)
 # ============================================================
-FECHA_INICIO = "2005-01-01"
+FECHA_INICIO = "2010-01-01"
 FECHA_CORTE = "2025-12-31"
 
 # Series del BCRP - VARIABLES MACROECONÓMICAS
