@@ -1,0 +1,80 @@
+MODELO A: serie de tiempo del sistema (errores HAC Newey-West, 12 rezagos)
+                              OLS Regression Results                             
+=================================================================================
+Dep. Variable:     atrasada_neta_sistema   R-squared:                       0.985
+Model:                               OLS   Adj. R-squared:                  0.985
+Method:                    Least Squares   F-statistic:                     655.6
+Date:                   Thu, 24 Sep 2026   Prob (F-statistic):          4.83e-116
+Time:                           00:38:15   Log-Likelihood:                -26.766
+No. Observations:                    192   AIC:                             65.53
+Df Residuals:                        186   BIC:                             85.08
+Df Model:                              5                                         
+Covariance Type:                     HAC                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept    -18.8429      5.717     -3.296      0.001     -30.048      -7.638
+pbi            0.0044      0.002      1.746      0.081      -0.001       0.009
+inflacion      0.0480      0.019      2.546      0.011       0.011       0.085
+spread         0.0702      0.071      0.987      0.324      -0.069       0.210
+ln_cartera     1.3946      0.404      3.449      0.001       0.602       2.187
+post2018       3.7892      0.169     22.479      0.000       3.459       4.120
+==============================================================================
+Omnibus:                       11.517   Durbin-Watson:                   0.107
+Prob(Omnibus):                  0.003   Jarque-Bera (JB):               12.101
+Skew:                           0.611   Prob(JB):                      0.00236
+Kurtosis:                       3.141   Cond. No.                     1.64e+03
+==============================================================================
+
+Notes:
+[1] Standard Errors are heteroscedasticity and autocorrelation robust (HAC) using 12 lags and without small sample correction
+[2] The condition number is large, 1.64e+03. This might indicate that there are
+strong multicollinearity or other numerical problems.
+
+
+MODELO B: panel con efectos fijos por banco (errores agrupados por banco)
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:          atrasada_neta   R-squared:                       0.586
+Model:                            OLS   Adj. R-squared:                  0.583
+Method:                 Least Squares   F-statistic:                 2.312e+04
+Date:                Thu, 24 Sep 2026   Prob (F-statistic):           6.80e-27
+Time:                        00:38:15   Log-Likelihood:                -6623.2
+No. Observations:                2718   AIC:                         1.329e+04
+Df Residuals:                    2698   BIC:                         1.340e+04
+Df Model:                          19                                         
+Covariance Type:              cluster                                         
+===========================================================================================
+                              coef    std err          z      P>|z|      [0.025      0.975]
+-------------------------------------------------------------------------------------------
+Intercept                 -14.7550     14.718     -1.003      0.316     -43.601      14.091
+C(banco)[T.BCP]             4.8783   3.97e-14   1.23e+14      0.000       4.878       4.878
+C(banco)[T.BanBif]          5.1467   1.79e-13   2.87e+13      0.000       5.147       5.147
+C(banco)[T.Cencosud]        4.5552      0.498      9.154      0.000       3.580       5.530
+C(banco)[T.Comercio]        5.1529   1.65e-13   3.13e+13      0.000       5.153       5.153
+C(banco)[T.Continental]     4.6847    1.8e-13    2.6e+13      0.000       4.685       4.685
+C(banco)[T.Falabella]       4.8917   1.03e-13   4.73e+13      0.000       4.892       4.892
+C(banco)[T.Financiero]      6.3774   1.17e-13   5.43e+13      0.000       6.377       6.377
+C(banco)[T.GNB]             4.7739   1.34e-14   3.57e+14      0.000       4.774       4.774
+C(banco)[T.ICBC]            2.4336      0.140     17.380      0.000       2.159       2.708
+C(banco)[T.Interbank]       4.1654   6.97e-14   5.98e+13      0.000       4.165       4.165
+C(banco)[T.MiBanco]         6.3472   4.92e-14   1.29e+14      0.000       6.347       6.347
+C(banco)[T.Ripley]          3.3153    3.2e-14   1.04e+14      0.000       3.315       3.315
+C(banco)[T.Santander]       3.6423   1.99e-14   1.83e+14      0.000       3.642       3.642
+C(banco)[T.Scotiabank]      5.1429   1.41e-14   3.64e+14      0.000       5.143       5.143
+pbi                         0.0166      0.011      1.566      0.117      -0.004       0.037
+inflacion                  -0.0386      0.038     -1.017      0.309      -0.113       0.036
+spread                      0.0817      0.069      1.185      0.236      -0.053       0.217
+ln_cartera                  0.5970      1.213      0.492      0.623      -1.780       2.974
+post2018                    5.8111      1.919      3.029      0.002       2.051       9.571
+==============================================================================
+Omnibus:                      834.088   Durbin-Watson:                   0.065
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):            36260.067
+Skew:                          -0.712   Prob(JB):                         0.00
+Kurtosis:                      20.837   Cond. No.                     1.64e+03
+==============================================================================
+
+Notes:
+[1] Standard Errors are robust to cluster correlation (CRV1)
+[2] The condition number is large, 1.64e+03. This might indicate that there are
+strong multicollinearity or other numerical problems.

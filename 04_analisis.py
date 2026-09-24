@@ -3,158 +3,198 @@
 # Tema: Morosidad y calidad de cartera del sistema bancario peruano frente al ciclo económico
 # Fecha de extracción: 2026-09-24
 
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
+"""
+Estimaciones, tablas y figuras del artículo, generadas SOLO a partir del archivo procesado.
+
+Variable endógena: atrasada_neta = cartera atrasada neta / colocaciones netas (%), por banco y mes.
+  (Es una medida NETA de provisiones: es negativa cuando las provisiones superan la cartera atrasada.)
+Variables exógenas: pbi (var. % interanual), inflacion (var. % 12 meses), spread (p.p.), cartera_total (millones S/).
+
+Salidas en /salidas: 6 figuras (.png), 4 tablas (.csv) y regresion_morosidad.txt.
+"""
+
+from datetime import datetime
 from pathlib import Path
-import statsmodels.api as sm
-from statsmodels.regression.linear_model import OLS
 
-Path("salidas").mkdir(exist_ok=True)
+import warnings
+import matplotlib
+warnings.filterwarnings("ignore", message="covariance of constraints")   # aviso inocuo: pocos grupos (15) para el test F agrupado
+matplotlib.use("Agg")   # backend sin ventana: los gráficos solo se guardan en archivo
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import statsmodels.formula.api as smf
 
-codigo_matricula = "2024200493L"
-ruta_datos = f"datos_procesados/datos_procesados_{codigo_matricula}.csv"
-df = pd.read_csv(ruta_datos)
+CODIGO_MATRICULA = "2024200493L"
+RUTA_DATOS = Path(f"datos_procesados/datos_procesados_{CODIGO_MATRICULA}.csv")
+CARPETA_SALIDAS = Path("salidas")
+ARCHIVO_LOG = Path("log_ejecucion.txt")
+CARPETA_SALIDAS.mkdir(exist_ok=True)
 
-df['fecha'] = pd.to_datetime(df['fecha'])
-df = df.sort_values(['banco', 'fecha']).reset_index(drop=True)
+# Quiebre estructural de la serie fuente: en ene-2018 TODOS los bancos saltan a la vez (p. ej. BCP -0,21 -> 3,02),
+# lo que indica un cambio de definición/metodología en el BCRP y no un shock económico. Se controla con una ficticia.
+FECHA_QUIEBRE = "2018-01-01"
+
+# ============================================================
+# 1. Carga de datos
+# ============================================================
+df = pd.read_csv(RUTA_DATOS, sep=";", parse_dates=["fecha"])
+df = df.sort_values(["banco", "fecha"]).reset_index(drop=True)
+periodo = f"{df['fecha'].min().year}-{df['fecha'].max().year}"
+
+# Serie mensual única (variables macro y del sistema): una fila por fecha
+mensual = (df.drop_duplicates("fecha")
+             [["fecha", "atrasada_neta_sistema", "pbi", "inflacion", "tasa_activa",
+               "tasa_pasiva", "spread", "cartera_total"]]
+             .sort_values("fecha").reset_index(drop=True))
 
 print("=" * 70)
-print("ANÁLISIS ESTADÍSTICO")
-print(f"Datos: {len(df)} observaciones")
-print(f"Periodo: {df['fecha'].min().date()} a {df['fecha'].max().date()}")
-print(f"Bancos: {df['banco'].nunique()}")
+print(f"ANÁLISIS | {len(df)} observaciones | {df['banco'].nunique()} bancos | {periodo}")
 print("=" * 70)
 
-# 1. Estadísticos descriptivos
-estadisticos = df.describe()
-estadisticos.to_csv("salidas/estadisticos_descriptivos.csv")
-print("\nEstadísticos descriptivos:")
-print(estadisticos.round(2))
+# ============================================================
+# 2. Tablas descriptivas
+# ============================================================
+# Tabla 1: estadísticos descriptivos del panel completo
+df.drop(columns="Id").describe().to_csv(CARPETA_SALIDAS / "estadisticos_descriptivos.csv")
 
-# 2. Matriz de correlaciones
-variables_numericas = df.select_dtypes(include=[np.number]).columns
-matriz_corr = df[variables_numericas].corr()
-matriz_corr.to_csv("salidas/matriz_correlaciones.csv")
-print("\nMatriz de correlaciones:")
-print(matriz_corr.round(3))
+# Tabla 2: matriz de correlaciones (serie mensual, evita repetir las variables macro por banco)
+variables = ["atrasada_neta_sistema", "pbi", "inflacion", "tasa_activa", "tasa_pasiva", "spread", "cartera_total"]
+matriz_corr = mensual[variables].corr()
+matriz_corr.to_csv(CARPETA_SALIDAS / "matriz_correlaciones.csv")
 
-# 3. Datos agregados por fecha
-df_agregado = df.groupby('fecha').agg({
-    'morosidad': 'mean',
-    'pbi': 'first',
-    'tasa_activa': 'first',
-    'tasa_pasiva': 'first',
-    'spread': 'first',
-    'cartera_total': 'first'
-}).reset_index()
+# Tabla 3: resumen de variables (macro sobre la serie mensual; banco sobre el panel)
+def resumen(nombre, serie):
+    return {"Variable": nombre, "N": int(serie.count()), "Media": serie.mean(),
+            "Desv. Est.": serie.std(), "Mínimo": serie.min(), "Máximo": serie.max()}
 
-# 4. Figura 1: Morosidad vs PBI
+tabla_resumen = pd.DataFrame([
+    resumen("Cartera atrasada neta por banco (%)", df["atrasada_neta"]),
+    resumen("Cartera atrasada neta del sistema (%)", mensual["atrasada_neta_sistema"]),
+    resumen("PBI (var. % interanual)", mensual["pbi"]),
+    resumen("Inflación (var. % 12 meses)", mensual["inflacion"]),
+    resumen("Tasa activa MN (%)", mensual["tasa_activa"]),
+    resumen("Tasa pasiva MN (%)", mensual["tasa_pasiva"]),
+    resumen("Spread (p.p.)", mensual["spread"]),
+    resumen("Crédito total (millones S/)", mensual["cartera_total"]),
+])
+tabla_resumen.to_csv(CARPETA_SALIDAS / "tabla_resumen_variables.csv", index=False, sep=";", decimal=",")
+
+# Tabla 4: cartera atrasada neta por banco (panel no balanceado)
+tabla_bancos = (df.groupby("banco")["atrasada_neta"]
+                  .agg(meses="count", media="mean", desv_est="std", minimo="min", maximo="max")
+                  .round(3).sort_values("media", ascending=False))
+tabla_bancos.to_csv(CARPETA_SALIDAS / "tabla_por_banco.csv")
+print("\nTabla por banco:\n", tabla_bancos)
+
+# ============================================================
+# 3. Figuras
+# ============================================================
+# Figura 1: cartera atrasada neta del sistema vs PBI
 fig, ax1 = plt.subplots(figsize=(12, 6))
-color = 'tab:red'
-ax1.set_xlabel('Fecha')
-ax1.set_ylabel('Morosidad (%)', color=color)
-ax1.plot(df_agregado['fecha'], df_agregado['morosidad'], color=color, linewidth=2, label='Morosidad')
-ax1.tick_params(axis='y', labelcolor=color)
+ax1.plot(mensual["fecha"], mensual["atrasada_neta_sistema"], color="tab:red", linewidth=2)
+ax1.set_xlabel("Fecha")
+ax1.set_ylabel("Cartera atrasada neta del sistema (%)", color="tab:red")
+ax1.axvline(pd.Timestamp(FECHA_QUIEBRE), color="gray", linestyle=":", linewidth=1.5)
+ax1.text(pd.Timestamp(FECHA_QUIEBRE), ax1.get_ylim()[0], " Quiebre de la serie (ene-2018)", va="bottom", fontsize=9, color="gray")
 ax1.grid(True, alpha=0.3)
-
 ax2 = ax1.twinx()
-color = 'tab:blue'
-ax2.set_ylabel('PBI (var. % interanual)', color=color)
-ax2.plot(df_agregado['fecha'], df_agregado['pbi'], color=color, linewidth=2, linestyle='--', label='PBI')
-ax2.tick_params(axis='y', labelcolor=color)
-
-plt.title('Morosidad del Sistema Bancario vs Ciclo Económico (PBI)\nPerú 2005-2025', fontsize=14, fontweight='bold')
+ax2.plot(mensual["fecha"], mensual["pbi"], color="tab:blue", linewidth=1.5, linestyle="--")
+ax2.set_ylabel("PBI (var. % interanual)", color="tab:blue")
+plt.title(f"Cartera atrasada neta del sistema bancario vs PBI - Perú {periodo}", fontsize=13, fontweight="bold")
 fig.tight_layout()
-plt.savefig("salidas/figura_01_morosidad_vs_pbi.png", dpi=300, bbox_inches='tight')
+plt.savefig(CARPETA_SALIDAS / "figura_01_morosidad_vs_pbi.png", dpi=300, bbox_inches="tight")
 plt.close()
-print("\n[OK] Figura 1: morosidad_vs_pbi.png")
 
-# 5. Figura 2: Tasas y Spread
+# Figura 2: tasas, spread e inflación
 fig, ax = plt.subplots(figsize=(12, 6))
-ax.plot(df_agregado['fecha'], df_agregado['tasa_activa'], linewidth=2, label='Tasa Activa', color='blue')
-ax.plot(df_agregado['fecha'], df_agregado['tasa_pasiva'], linewidth=2, label='Tasa Pasiva', color='green')
-ax.plot(df_agregado['fecha'], df_agregado['spread'], linewidth=2, label='Spread', color='red', linestyle='--')
-ax.set_xlabel('Fecha')
-ax.set_ylabel('Tasa de Interés (%)')
-ax.set_title('Evolución de Tasas de Interés y Spread Bancario\nPerú 2005-2025', fontsize=14, fontweight='bold')
+ax.plot(mensual["fecha"], mensual["tasa_activa"], linewidth=2, label="Tasa activa MN", color="blue")
+ax.plot(mensual["fecha"], mensual["tasa_pasiva"], linewidth=2, label="Tasa pasiva MN", color="green")
+ax.plot(mensual["fecha"], mensual["spread"], linewidth=2, label="Spread", color="red", linestyle="--")
+ax.plot(mensual["fecha"], mensual["inflacion"], linewidth=1.5, label="Inflación (12 meses)", color="black", linestyle=":")
+ax.set_xlabel("Fecha")
+ax.set_ylabel("Porcentaje")
+ax.set_title(f"Tasas de interés, spread e inflación - Perú {periodo}", fontsize=13, fontweight="bold")
 ax.legend()
 ax.grid(True, alpha=0.3)
-plt.savefig("salidas/figura_02_tasas_y_spread.png", dpi=300, bbox_inches='tight')
+plt.savefig(CARPETA_SALIDAS / "figura_02_tasas_y_spread.png", dpi=300, bbox_inches="tight")
 plt.close()
-print("[OK] Figura 2: tasas_y_spread.png")
 
-# 6. Figura 3: Cartera de Créditos
+# Figura 3: crédito total del sistema bancario
 fig, ax = plt.subplots(figsize=(12, 6))
-ax.plot(df_agregado['fecha'], df_agregado['cartera_total'], linewidth=2, color='purple')
-ax.fill_between(df_agregado['fecha'], df_agregado['cartera_total'], alpha=0.3)
-ax.set_xlabel('Fecha')
-ax.set_ylabel('Cartera de Créditos (millones S/)')
-ax.set_title('Evolución de la Cartera de Créditos del Sistema Bancario\nPerú 2005-2025', fontsize=14, fontweight='bold')
+ax.plot(mensual["fecha"], mensual["cartera_total"], linewidth=2, color="purple")
+ax.fill_between(mensual["fecha"], mensual["cartera_total"], alpha=0.3, color="purple")
+ax.set_xlabel("Fecha")
+ax.set_ylabel("Crédito al sector privado (millones S/)")
+ax.set_title(f"Crédito del sistema bancario al sector privado - Perú {periodo}", fontsize=13, fontweight="bold")
 ax.grid(True, alpha=0.3)
-plt.savefig("salidas/figura_03_cartera_creditos.png", dpi=300, bbox_inches='tight')
+plt.savefig(CARPETA_SALIDAS / "figura_03_cartera_creditos.png", dpi=300, bbox_inches="tight")
 plt.close()
-print("[OK] Figura 3: cartera_creditos.png")
 
-# 7. Figura 4: Heatmap de Correlaciones
+# Figura 4: mapa de calor de correlaciones
 fig, ax = plt.subplots(figsize=(10, 8))
-variables_heatmap = ['morosidad', 'pbi', 'tasa_activa', 'tasa_pasiva', 'spread', 'cartera_total']
-matriz_corr_heatmap = df_agregado[variables_heatmap].corr()
-sns.heatmap(matriz_corr_heatmap, annot=True, cmap='coolwarm', center=0, 
-            fmt='.3f', square=True, linewidths=0.5, ax=ax, cbar_kws={"shrink": 0.8})
-plt.title('Matriz de Correlaciones - Variables del Sistema Bancario', fontsize=14, fontweight='bold')
+sns.heatmap(matriz_corr, annot=True, cmap="coolwarm", center=0, fmt=".2f", square=True,
+            linewidths=0.5, ax=ax, cbar_kws={"shrink": 0.8})
+plt.title("Matriz de correlaciones (serie mensual)", fontsize=13, fontweight="bold")
 plt.tight_layout()
-plt.savefig("salidas/figura_04_heatmap_correlaciones.png", dpi=300, bbox_inches='tight')
+plt.savefig(CARPETA_SALIDAS / "figura_04_heatmap_correlaciones.png", dpi=300, bbox_inches="tight")
 plt.close()
-print("[OK] Figura 4: heatmap_correlaciones.png")
 
-# 8. Regresión: Morosidad = f(PBI, Spread, Cartera)
-print("\n" + "=" * 70)
-print("MODELO DE REGRESIÓN: Morosidad = f(PBI, Spread, Cartera)")
-print("=" * 70)
+# ============================================================
+# 4. Modelos de regresión
+# ============================================================
+# Modelo A: serie de tiempo del sistema, errores robustos HAC (Newey-West, 12 rezagos)
+mensual["ln_cartera"] = np.log(mensual["cartera_total"])
+mensual["post2018"] = (mensual["fecha"] >= FECHA_QUIEBRE).astype(int)
+modelo_a = smf.ols("atrasada_neta_sistema ~ pbi + inflacion + spread + ln_cartera + post2018", data=mensual)\
+              .fit(cov_type="HAC", cov_kwds={"maxlags": 12})
 
-X = df_agregado[['pbi', 'spread', 'cartera_total']]
-y = df_agregado['morosidad']
-X = sm.add_constant(X)
-modelo = OLS(y, X).fit()
+# Modelo B: panel con efectos fijos por banco y errores agrupados por banco (2 718 observaciones)
+df["ln_cartera"] = np.log(df["cartera_total"])
+df["post2018"] = (df["fecha"] >= FECHA_QUIEBRE).astype(int)
+modelo_b = smf.ols("atrasada_neta ~ pbi + inflacion + spread + ln_cartera + post2018 + C(banco)", data=df)\
+              .fit(cov_type="cluster", cov_kwds={"groups": pd.factorize(df["banco"])[0]})
 
-print(modelo.summary())
-with open("salidas/regresion_morosidad.txt", 'w', encoding='utf-8') as f:
-    f.write(modelo.summary().as_text())
-print("\n[OK] Regresión guardada: regresion_morosidad.txt")
+with open(CARPETA_SALIDAS / "regresion_morosidad.txt", "w", encoding="utf-8") as f:
+    f.write("MODELO A: serie de tiempo del sistema (errores HAC Newey-West, 12 rezagos)\n")
+    f.write(modelo_a.summary().as_text())
+    f.write("\n\n\nMODELO B: panel con efectos fijos por banco (errores agrupados por banco)\n")
+    f.write(modelo_b.summary().as_text())
+print(modelo_a.summary())
+print(f"\nModelo B: N={int(modelo_b.nobs)}, R2={modelo_b.rsquared:.3f}")
+print(modelo_b.params[["pbi", "inflacion", "spread", "ln_cartera", "post2018"]].round(4))
 
-# 9. Figura 5: Dispersión Morosidad vs PBI
+# Figura 5: dispersión PBI vs cartera atrasada neta del sistema con recta MCO simple
+simple = smf.ols("atrasada_neta_sistema ~ pbi", data=mensual).fit()
 fig, ax = plt.subplots(figsize=(10, 6))
-ax.scatter(df_agregado['pbi'], df_agregado['morosidad'], alpha=0.6, s=50, color='blue', label='Observaciones')
-ax.plot(df_agregado['pbi'], modelo.fittedvalues, 'r-', linewidth=2, label='Línea de regresión')
-ax.set_xlabel('PBI (var. % interanual)', fontsize=12)
-ax.set_ylabel('Morosidad (%)', fontsize=12)
-ax.set_title('Relación entre Ciclo Económico (PBI) y Morosidad Bancaria', fontsize=14, fontweight='bold')
-ax.legend()
+ax.scatter(mensual["pbi"], mensual["atrasada_neta_sistema"], alpha=0.6, s=40, color="blue", label="Meses")
+orden = mensual["pbi"].sort_values().index
+ax.plot(mensual.loc[orden, "pbi"], simple.fittedvalues[orden], "r-", linewidth=2, label="Recta MCO")
+ax.set_xlabel("PBI (var. % interanual)")
+ax.set_ylabel("Cartera atrasada neta del sistema (%)")
+ax.set_title("Ciclo económico (PBI) y cartera atrasada neta del sistema", fontsize=13, fontweight="bold")
+ax.text(0.05, 0.95, f"y = {simple.params['Intercept']:.3f} {simple.params['pbi']:+.3f}·PBI\nR² = {simple.rsquared:.3f}",
+        transform=ax.transAxes, va="top", bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.5))
+ax.legend(loc="lower right")
 ax.grid(True, alpha=0.3)
-ecuacion = f"Morosidad = {modelo.params['const']:.3f} {modelo.params['pbi']:+.3f}×PBI\nR² = {modelo.rsquared:.4f}"
-ax.text(0.05, 0.95, ecuacion, transform=ax.transAxes, fontsize=11, 
-        verticalalignment='top', bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
-plt.savefig("salidas/figura_05_regresion_morosidad_pbi.png", dpi=300, bbox_inches='tight')
+plt.savefig(CARPETA_SALIDAS / "figura_05_regresion_morosidad_pbi.png", dpi=300, bbox_inches="tight")
 plt.close()
-print("[OK] Figura 5: regresion_morosidad_pbi.png")
 
-# 10. Tabla resumen
-tabla_resumen = pd.DataFrame({
-    'Variable': ['Morosidad', 'PBI', 'Tasa Activa', 'Tasa Pasiva', 'Spread', 'Cartera Total'],
-    'Media': [df['morosidad'].mean(), df['pbi'].mean(), df['tasa_activa'].mean(), 
-              df['tasa_pasiva'].mean(), df['spread'].mean(), df['cartera_total'].mean()],
-    'Desv. Est.': [df['morosidad'].std(), df['pbi'].std(), df['tasa_activa'].std(),
-                   df['tasa_pasiva'].std(), df['spread'].std(), df['cartera_total'].std()],
-    'Mínimo': [df['morosidad'].min(), df['pbi'].min(), df['tasa_activa'].min(),
-               df['tasa_pasiva'].min(), df['spread'].min(), df['cartera_total'].min()],
-    'Máximo': [df['morosidad'].max(), df['pbi'].max(), df['tasa_activa'].max(),
-               df['tasa_pasiva'].max(), df['spread'].max(), df['cartera_total'].max()]
-})
-tabla_resumen.to_csv("salidas/tabla_resumen_variables.csv", index=False, decimal=',', sep=';')
-print("\n[OK] Tabla resumen guardada: tabla_resumen_variables.csv")
+# Figura 6: cartera atrasada neta por banco (distribución)
+fig, ax = plt.subplots(figsize=(12, 6))
+orden_bancos = tabla_bancos.index.tolist()
+sns.boxplot(data=df, x="banco", y="atrasada_neta", order=orden_bancos, ax=ax, color="lightsteelblue")
+ax.axhline(0, color="gray", linewidth=1, linestyle="--")
+ax.set_xlabel("Banco")
+ax.set_ylabel("Cartera atrasada neta / colocaciones netas (%)")
+ax.set_title(f"Distribución por banco - Perú {periodo}", fontsize=13, fontweight="bold")
+plt.xticks(rotation=45, ha="right")
+plt.tight_layout()
+plt.savefig(CARPETA_SALIDAS / "figura_06_distribucion_por_banco.png", dpi=300, bbox_inches="tight")
+plt.close()
 
-print("\n" + "=" * 70)
-print("ANÁLISIS COMPLETADO")
-print("=" * 70)
+with open(ARCHIVO_LOG, "a", encoding="utf-8") as f:
+    f.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | 04_analisis | 6 figuras, 4 tablas y regresiones "
+            f"generadas en /salidas a partir de {RUTA_DATOS.name}\n")
+print("\nANÁLISIS COMPLETADO: resultados en /salidas")

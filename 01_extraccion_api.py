@@ -3,26 +3,50 @@
 # Tema: Morosidad y calidad de cartera del sistema bancario peruano frente al ciclo económico
 # Fecha de extracción: 2026-09-24
 
-import requests
-from pathlib import Path
+"""
+VÍA 1 (API): consumo de la API de BCRPData (Banco Central de Reserva del Perú).
+
+Endpoint : https://estadisticas.bcrp.gob.pe/estadisticas/series/api/{CODIGO}/csv/{INICIO}/{FIN}
+Salida   : un archivo crudo por serie en datos_crudos/ (bytes exactos de la respuesta, sin editar)
+Log      : log_ejecucion.txt (fecha y hora, código HTTP, número de filas, estado)
+
+Orden de ejecución del proyecto: 01 -> 02 -> 03 -> 04 (ver README.md).
+"""
+
+import os
+import re
 import time
 from datetime import datetime
+from pathlib import Path
+
+import requests
 
 # ============================================================
-# PARÁMETROS CONGELADOS (NO CAMBIAR)
+# PARÁMETROS CONGELADOS (constantes; NO usar fechas dinámicas tipo "hoy")
 # ============================================================
 FECHA_INICIO = "2010-01-01"
 FECHA_CORTE = "2025-12-31"
 
-# Series del BCRP - VARIABLES MACROECONÓMICAS
+URL_BASE = "https://estadisticas.bcrp.gob.pe/estadisticas/series/api"
+CARPETA_CRUDOS = Path("datos_crudos")
+ARCHIVO_LOG = Path("log_ejecucion.txt")
+
+# User-Agent identificable; el contacto se puede sobrescribir con la variable de entorno
+# USER_AGENT_SCRAPER (ver .env.example). La API del BCRP no requiere clave.
+USER_AGENT = os.environ.get("USER_AGENT_SCRAPER", "EstudianteUNCP-FinanzasI/1.0 (2024200493L)")
+PAUSA_SEGUNDOS = 1      # pausa mínima entre solicitudes (numeral 2.4.8)
+REINTENTOS = 3          # reintentos ante fallas de red o respuestas no válidas
+
+# Series macroeconómicas del BCRP (frecuencia mensual)
 SERIES_MACRO = {
-    "pbi": "PN01728AM",
-    "tasa_activa": "PN07807NM",
-    "tasa_pasiva": "PN07816NM",
-    "cartera_total": "PN00528MM"
+    "pbi": "PN01728AM",           # PBI, variación % interanual
+    "tasa_activa": "PN07807NM",   # Tasa activa promedio bancos en MN (TAMN), % efectivo anual
+    "tasa_pasiva": "PN07816NM",   # Tasa pasiva promedio bancos en MN (TIPMN), % efectivo anual
+    "cartera_total": "PN00528MM"  # Crédito del sistema bancario al sector privado, millones S/
 }
 
-# Series del BCRP - MOROSIDAD POR BANCO (15 bancos)
+# Series de cartera atrasada neta / colocaciones netas (%) por empresa bancaria
+# (verificadas contra el catálogo del BCRP: el código PN07744EM es Cencosud y PN07745EM es ICBC)
 BANCOS = {
     "BCP": "PN07729EM",
     "Interbank": "PN07730EM",
@@ -37,56 +61,69 @@ BANCOS = {
     "Santander": "PN07740EM",
     "Ripley": "PN07741EM",
     "Azteca": "PN07742EM",
-    "ICBC": "PN07744EM",
-    "Total_Sistema": "PN07746EM"
+    "Cencosud": "PN07744EM",
+    "ICBC": "PN07745EM",
+    "Total_Sistema": "PN07746EM"   # agregado de empresas bancarias (no es un banco individual)
 }
 
-URL_BASE = "https://estadisticas.bcrp.gob.pe/estadisticas/series/api"
 
-def extraer_serie_bcrp(codigo, inicio, fin):
+def registrar(mensaje):
+    """Imprime en consola y agrega la línea al log_ejecucion.txt."""
+    print(mensaje)
+    with open(ARCHIVO_LOG, "a", encoding="utf-8") as f:
+        f.write(mensaje + "\n")
+
+
+def extraer_serie_bcrp(nombre, codigo, inicio, fin):
+    """
+    Descarga una serie del BCRP y guarda la respuesta TAL COMO SALE de la fuente.
+    Devuelve True si la serie se guardó correctamente.
+    """
     url = f"{URL_BASE}/{codigo}/csv/{inicio}/{fin}"
-    headers = {"User-Agent": "EstudianteUNCP-FinanzasI/1.0 (2024200493L)"}
-    
-    try:
-        response = requests.get(url, headers=headers, timeout=30)
-        response.raise_for_status()
-        
-        Path("datos_crudos").mkdir(exist_ok=True)
-        ruta = Path(f"datos_crudos/bcrp_{codigo}_crudo.csv")
-        ruta.write_text(response.text, encoding="utf-8")
-        
-        print(f"[OK] {codigo} -> {ruta} | HTTP {response.status_code}")
-        time.sleep(1)
-        return ruta
-    except Exception as e:
-        print(f"[ERROR] {codigo}: {e}")
-        return None
+    headers = {"User-Agent": USER_AGENT}
+    estado, http, filas = "ERROR", "-", 0
+
+    for intento in range(1, REINTENTOS + 1):
+        try:
+            respuesta = requests.get(url, headers=headers, timeout=30)
+            http = respuesta.status_code
+            respuesta.raise_for_status()
+            texto = respuesta.content.decode("utf-8", errors="replace")
+            # Una respuesta válida empieza con la cabecera "Mes/Año"; si no, el portal devolvió HTML de error
+            if not texto.startswith("Mes/"):
+                raise ValueError("La respuesta no tiene formato de serie BCRP")
+            filas = len(re.findall(r'<br>"', texto))
+            CARPETA_CRUDOS.mkdir(exist_ok=True)
+            # write_bytes conserva exactamente lo que envió la fuente (dato crudo = evidencia primaria)
+            (CARPETA_CRUDOS / f"bcrp_{codigo}_crudo.csv").write_bytes(respuesta.content)
+            estado = "OK"
+            break
+        except (requests.RequestException, ValueError) as e:
+            estado = f"ERROR ({type(e).__name__}: {e})"
+            time.sleep(PAUSA_SEGUNDOS * intento)
+
+    ahora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    registrar(f"{ahora} | 01_extraccion_api | {codigo} | {nombre} | HTTP {http} | filas={filas} | {estado} | {url}")
+    time.sleep(PAUSA_SEGUNDOS)
+    return estado == "OK"
+
 
 if __name__ == "__main__":
-    print("=" * 70)
-    print("EXTRACCIÓN BCRP - API")
-    print(f"Periodo: {FECHA_INICIO} a {FECHA_CORTE}")
-    print(f"Bancos: {len(BANCOS)}")
-    print(f"Observaciones esperadas: {len(BANCOS)} × 252 meses ≈ {len(BANCOS)*252}")
-    print("=" * 70)
-    
-    log_ejecucion = []
-    total_series = len(SERIES_MACRO) + len(BANCOS)
-    serie_actual = 0
-    
-    print("\n--- SERIES MACRO ---")
+    ARCHIVO_LOG.write_text("", encoding="utf-8")   # el 01 inicia el log; los demás scripts agregan líneas
+    registrar("=" * 70)
+    registrar("EXTRACCIÓN BCRP - VÍA 1: API")
+    registrar(f"Ventana congelada: {FECHA_INICIO} a {FECHA_CORTE}")
+    registrar(f"Series macro: {len(SERIES_MACRO)} | Series por banco: {len(BANCOS)}")
+    registrar("=" * 70)
+
+    exitos, total = 0, len(SERIES_MACRO) + len(BANCOS)
+
+    registrar("--- SERIES MACRO ---")
     for nombre, codigo in SERIES_MACRO.items():
-        serie_actual += 1
-        print(f"[{serie_actual}/{total_series}] {nombre} ({codigo})...")
-        ruta = extraer_serie_bcrp(codigo, FECHA_INICIO, FECHA_CORTE)
-        log_ejecucion.append(f"{datetime.now()} | {nombre} | {codigo} | {'OK' if ruta else 'ERROR'}")
-    
-    print("\n--- MOROSIDAD POR BANCO ---")
+        exitos += extraer_serie_bcrp(nombre, codigo, FECHA_INICIO, FECHA_CORTE)
+
+    registrar("--- CARTERA ATRASADA NETA POR BANCO ---")
     for banco, codigo in BANCOS.items():
-        serie_actual += 1
-        print(f"[{serie_actual}/{total_series}] {banco} ({codigo})...")
-        ruta = extraer_serie_bcrp(codigo, FECHA_INICIO, FECHA_CORTE)
-        log_ejecucion.append(f"{datetime.now()} | morosidad_{banco} | {codigo} | {'OK' if ruta else 'ERROR'}")
-    
-    Path("log_ejecucion.txt").write_text("\n".join(log_ejecucion), encoding="utf-8")
-    print("\nEXTRACCIÓN COMPLETADA")
+        exitos += extraer_serie_bcrp(f"atrasada_neta_{banco}", codigo, FECHA_INICIO, FECHA_CORTE)
+
+    registrar(f"EXTRACCIÓN COMPLETADA: {exitos}/{total} series descargadas")
