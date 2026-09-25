@@ -1,6 +1,6 @@
 # Nombres y apellidos: Nils Georgia Chavez Vilchez
 # Código de matrícula: 2024200493L
-# Tema: Morosidad y calidad de cartera del sistema bancario peruano frente al ciclo económico
+# Tema N.º 10: Morosidad y calidad de cartera del sistema bancario peruano frente al ciclo económico
 # Fecha de extracción: 2026-09-24
 
 """
@@ -10,7 +10,7 @@ Endpoint : https://estadisticas.bcrp.gob.pe/estadisticas/series/api/{CODIGO}/csv
 Salida   : un archivo crudo por serie en datos_crudos/ (bytes exactos de la respuesta, sin editar)
 Log      : log_ejecucion.txt (fecha y hora, código HTTP, número de filas, estado)
 
-Orden de ejecución del proyecto: 01 -> 02 -> 03 -> 04 (ver README.md).
+Orden de ejecución del proyecto: 01 -> 03 -> 04 (ver README.md).
 """
 
 import os
@@ -39,10 +39,11 @@ REINTENTOS = 3          # reintentos ante fallas de red o respuestas no válidas
 
 # Series macroeconómicas del BCRP (frecuencia mensual)
 SERIES_MACRO = {
-    "pbi": "PN01728AM",           # PBI, variación % interanual
-    "tasa_activa": "PN07807NM",   # Tasa activa promedio bancos en MN (TAMN), % efectivo anual
-    "tasa_pasiva": "PN07816NM",   # Tasa pasiva promedio bancos en MN (TIPMN), % efectivo anual
-    "cartera_total": "PN00528MM"  # Crédito del sistema bancario al sector privado, millones S/
+    "pbi": "PN01728AM",
+    "inflacion": "PN01273PM",
+    "tasa_activa": "PN07807NM",
+    "tasa_pasiva": "PN07816NM",
+    "cartera_total": "PN00528MM"
 }
 
 # Series de cartera atrasada neta / colocaciones netas (%) por empresa bancaria

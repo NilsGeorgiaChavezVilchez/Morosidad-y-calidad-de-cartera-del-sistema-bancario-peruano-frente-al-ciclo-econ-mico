@@ -1,6 +1,6 @@
 # Nombres y apellidos: Nils Georgia Chavez Vilchez
 # Código de matrícula: 2024200493L
-# Tema: Morosidad y calidad de cartera del sistema bancario peruano frente al ciclo económico
+# Tema N.º 10: Morosidad y calidad de cartera del sistema bancario peruano frente al ciclo económico
 # Fecha de extracción: 2026-09-24
 
 """

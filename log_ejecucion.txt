@@ -1,33 +1,34 @@
 ======================================================================
 EXTRACCIÓN BCRP - VÍA 1: API
 Ventana congelada: 2010-01-01 a 2025-12-31
-Series macro: 4 | Series por banco: 16
+Series macro: 5 | Series por banco: 16
 ======================================================================
 --- SERIES MACRO ---
-2026-09-24 00:23:44 | 01_extraccion_api | PN01728AM | pbi | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN01728AM/csv/2010-01-01/2025-12-31
-2026-09-24 00:23:46 | 01_extraccion_api | PN07807NM | tasa_activa | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07807NM/csv/2010-01-01/2025-12-31
-2026-09-24 00:23:48 | 01_extraccion_api | PN07816NM | tasa_pasiva | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07816NM/csv/2010-01-01/2025-12-31
-2026-09-24 00:23:49 | 01_extraccion_api | PN00528MM | cartera_total | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN00528MM/csv/2010-01-01/2025-12-31
+2026-09-25 00:25:21 | 01_extraccion_api | PN01728AM | pbi | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN01728AM/csv/2010-01-01/2025-12-31
+2026-09-25 00:25:23 | 01_extraccion_api | PN01273PM | inflacion | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN01273PM/csv/2010-01-01/2025-12-31
+2026-09-25 00:25:25 | 01_extraccion_api | PN07807NM | tasa_activa | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07807NM/csv/2010-01-01/2025-12-31
+2026-09-25 00:25:26 | 01_extraccion_api | PN07816NM | tasa_pasiva | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07816NM/csv/2010-01-01/2025-12-31
+2026-09-25 00:25:28 | 01_extraccion_api | PN00528MM | cartera_total | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN00528MM/csv/2010-01-01/2025-12-31
 --- CARTERA ATRASADA NETA POR BANCO ---
-2026-09-24 00:23:51 | 01_extraccion_api | PN07729EM | atrasada_neta_BCP | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07729EM/csv/2010-01-01/2025-12-31
-2026-09-24 00:23:53 | 01_extraccion_api | PN07730EM | atrasada_neta_Interbank | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07730EM/csv/2010-01-01/2025-12-31
-2026-09-24 00:23:54 | 01_extraccion_api | PN07732EM | atrasada_neta_Scotiabank | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07732EM/csv/2010-01-01/2025-12-31
-2026-09-24 00:23:56 | 01_extraccion_api | PN07733EM | atrasada_neta_Continental | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07733EM/csv/2010-01-01/2025-12-31
-2026-09-24 00:23:58 | 01_extraccion_api | PN07734EM | atrasada_neta_Comercio | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07734EM/csv/2010-01-01/2025-12-31
-2026-09-24 00:23:59 | 01_extraccion_api | PN07735EM | atrasada_neta_Financiero | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07735EM/csv/2010-01-01/2025-12-31
-2026-09-24 00:24:01 | 01_extraccion_api | PN07736EM | atrasada_neta_BanBif | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07736EM/csv/2010-01-01/2025-12-31
-2026-09-24 00:24:03 | 01_extraccion_api | PN07737EM | atrasada_neta_MiBanco | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07737EM/csv/2010-01-01/2025-12-31
-2026-09-24 00:24:04 | 01_extraccion_api | PN07738EM | atrasada_neta_GNB | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07738EM/csv/2010-01-01/2025-12-31
-2026-09-24 00:24:06 | 01_extraccion_api | PN07739EM | atrasada_neta_Falabella | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07739EM/csv/2010-01-01/2025-12-31
-2026-09-24 00:24:07 | 01_extraccion_api | PN07740EM | atrasada_neta_Santander | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07740EM/csv/2010-01-01/2025-12-31
-2026-09-24 00:24:09 | 01_extraccion_api | PN07741EM | atrasada_neta_Ripley | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07741EM/csv/2010-01-01/2025-12-31
-2026-09-24 00:24:11 | 01_extraccion_api | PN07742EM | atrasada_neta_Azteca | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07742EM/csv/2010-01-01/2025-12-31
-2026-09-24 00:24:12 | 01_extraccion_api | PN07744EM | atrasada_neta_Cencosud | HTTP 200 | filas=80 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07744EM/csv/2010-01-01/2025-12-31
-2026-09-24 00:24:14 | 01_extraccion_api | PN07745EM | atrasada_neta_ICBC | HTTP 200 | filas=142 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07745EM/csv/2010-01-01/2025-12-31
-2026-09-24 00:24:16 | 01_extraccion_api | PN07746EM | atrasada_neta_Total_Sistema | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07746EM/csv/2010-01-01/2025-12-31
-EXTRACCIÓN COMPLETADA: 20/20 series descargadas
+2026-09-25 00:25:30 | 01_extraccion_api | PN07729EM | atrasada_neta_BCP | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07729EM/csv/2010-01-01/2025-12-31
+2026-09-25 00:25:31 | 01_extraccion_api | PN07730EM | atrasada_neta_Interbank | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07730EM/csv/2010-01-01/2025-12-31
+2026-09-25 00:25:33 | 01_extraccion_api | PN07732EM | atrasada_neta_Scotiabank | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07732EM/csv/2010-01-01/2025-12-31
+2026-09-25 00:25:35 | 01_extraccion_api | PN07733EM | atrasada_neta_Continental | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07733EM/csv/2010-01-01/2025-12-31
+2026-09-25 00:25:36 | 01_extraccion_api | PN07734EM | atrasada_neta_Comercio | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07734EM/csv/2010-01-01/2025-12-31
+2026-09-25 00:25:38 | 01_extraccion_api | PN07735EM | atrasada_neta_Financiero | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07735EM/csv/2010-01-01/2025-12-31
+2026-09-25 00:25:39 | 01_extraccion_api | PN07736EM | atrasada_neta_BanBif | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07736EM/csv/2010-01-01/2025-12-31
+2026-09-25 00:25:41 | 01_extraccion_api | PN07737EM | atrasada_neta_MiBanco | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07737EM/csv/2010-01-01/2025-12-31
+2026-09-25 00:25:42 | 01_extraccion_api | PN07738EM | atrasada_neta_GNB | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07738EM/csv/2010-01-01/2025-12-31
+2026-09-25 00:25:44 | 01_extraccion_api | PN07739EM | atrasada_neta_Falabella | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07739EM/csv/2010-01-01/2025-12-31
+2026-09-25 00:25:46 | 01_extraccion_api | PN07740EM | atrasada_neta_Santander | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07740EM/csv/2010-01-01/2025-12-31
+2026-09-25 00:25:47 | 01_extraccion_api | PN07741EM | atrasada_neta_Ripley | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07741EM/csv/2010-01-01/2025-12-31
+2026-09-25 00:25:49 | 01_extraccion_api | PN07742EM | atrasada_neta_Azteca | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07742EM/csv/2010-01-01/2025-12-31
+2026-09-25 00:25:50 | 01_extraccion_api | PN07744EM | atrasada_neta_Cencosud | HTTP 200 | filas=80 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07744EM/csv/2010-01-01/2025-12-31
+2026-09-25 00:25:52 | 01_extraccion_api | PN07745EM | atrasada_neta_ICBC | HTTP 200 | filas=142 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07745EM/csv/2010-01-01/2025-12-31
+2026-09-25 00:25:54 | 01_extraccion_api | PN07746EM | atrasada_neta_Total_Sistema | HTTP 200 | filas=192 | OK | https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN07746EM/csv/2010-01-01/2025-12-31
+EXTRACCIÓN COMPLETADA: 21/21 series descargadas
 ======================================================================
-2026-09-24 00:37:57 | 03_limpieza_datos | Panel banco-mes 2010-01-01 a 2025-12-31
+2026-09-25 00:26:11 | 03_limpieza_datos | Panel banco-mes 2010-01-01 a 2025-12-31
 ======================================================================
   pbi (PN01728AM): 192 meses, 0 faltantes, 0 registros ilegibles
   inflacion (PN01273PM): 192 meses, 0 faltantes, 0 registros ilegibles
@@ -51,10 +52,10 @@ EXTRACCIÓN COMPLETADA: 20/20 series descargadas
   ICBC (PN07745EM): 142 meses con dato (0 faltantes eliminados), 2014-03-01 a 2025-12-01
   Valores atípicos marcados (|z modificado| > 3.5): 14 de 2718; se conservan
 ----------------------------------------------------------------------
-2026-09-24 00:37:57 | 03_limpieza_datos | Archivo: datos_procesados\datos_procesados_2024200493L.csv
+2026-09-25 00:26:11 | 03_limpieza_datos | Archivo: datos_procesados\datos_procesados_2024200493L.csv
   Observaciones: 2718 | Bancos: 15 | Meses: 192
   Rango: 2010-01-01 a 2025-12-01 | Columnas: ['Id', 'fecha', 'banco', 'atrasada_neta', 'atrasada_neta_sistema', 'pbi', 'inflacion', 'tasa_activa', 'tasa_pasiva', 'spread', 'cartera_total']
   Valores faltantes en el archivo final: 0
   SHA-256: 044db6c86e4f8729bb44c7b9f037cc341e6d1c4c0b95cdbc68d8b7c53a9065f1
   Cumple mínimos: obs >= 1000: True | variables sustantivas >= 4: True (8)
-2026-09-24 00:38:16 | 04_analisis | 6 figuras, 4 tablas y regresiones generadas en /salidas a partir de datos_procesados_2024200493L.csv
+2026-09-25 00:26:49 | 04_analisis | 6 figuras, 4 tablas y regresiones generadas en /salidas a partir de datos_procesados_2024200493L.csv

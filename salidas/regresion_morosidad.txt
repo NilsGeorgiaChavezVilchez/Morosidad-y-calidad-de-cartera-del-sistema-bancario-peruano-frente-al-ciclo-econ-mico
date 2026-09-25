@@ -4,8 +4,8 @@ MODELO A: serie de tiempo del sistema (errores HAC Newey-West, 12 rezagos)
 Dep. Variable:     atrasada_neta_sistema   R-squared:                       0.985
 Model:                               OLS   Adj. R-squared:                  0.985
 Method:                    Least Squares   F-statistic:                     655.6
-Date:                   Thu, 24 Sep 2026   Prob (F-statistic):          4.83e-116
-Time:                           00:38:15   Log-Likelihood:                -26.766
+Date:                   Fri, 25 Sep 2026   Prob (F-statistic):          4.83e-116
+Time:                           00:26:48   Log-Likelihood:                -26.766
 No. Observations:                    192   AIC:                             65.53
 Df Residuals:                        186   BIC:                             85.08
 Df Model:                              5                                         
@@ -38,8 +38,8 @@ MODELO B: panel con efectos fijos por banco (errores agrupados por banco)
 Dep. Variable:          atrasada_neta   R-squared:                       0.586
 Model:                            OLS   Adj. R-squared:                  0.583
 Method:                 Least Squares   F-statistic:                 2.312e+04
-Date:                Thu, 24 Sep 2026   Prob (F-statistic):           6.80e-27
-Time:                        00:38:15   Log-Likelihood:                -6623.2
+Date:                Fri, 25 Sep 2026   Prob (F-statistic):           6.80e-27
+Time:                        00:26:48   Log-Likelihood:                -6623.2
 No. Observations:                2718   AIC:                         1.329e+04
 Df Residuals:                    2698   BIC:                         1.340e+04
 Df Model:                          19                                         
