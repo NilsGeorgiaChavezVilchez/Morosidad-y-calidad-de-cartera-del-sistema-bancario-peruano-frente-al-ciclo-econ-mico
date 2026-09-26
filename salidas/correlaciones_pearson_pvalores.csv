@@ -1,0 +1,7 @@
+Variable_dependiente;Variable_explicativa;Pearson_r;p_valor;N
+atrasada_neta_sistema;pbi;-0,1418203903474394;0,04973709728129103;192
+atrasada_neta_sistema;inflacion;0,1555308204550261;0,03122829606920214;192
+atrasada_neta_sistema;tasa_activa;-0,7785878852110034;2,6333845515962524e-40;192
+atrasada_neta_sistema;tasa_pasiva;0,011622931676021114;0,8728765061914068;192
+atrasada_neta_sistema;spread;-0,835702135912438;2,4277909175643117e-51;192
+atrasada_neta_sistema;cartera_total;0,9225861076212118;1,5978542895692233e-80;192

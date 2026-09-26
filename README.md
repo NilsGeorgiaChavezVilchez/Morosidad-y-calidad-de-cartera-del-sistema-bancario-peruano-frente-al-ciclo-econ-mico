@@ -1,6 +1,6 @@
 # Morosidad y calidad de cartera del sistema bancario peruano frente al ciclo económico
 
-**Objetivo:** determinar el efecto del ciclo económico sobre la cartera atrasada de las empresas bancarias del Perú.
+**Objetivo:** analizar la relación entre el ciclo económico y la calidad de cartera del sistema bancario peruano durante el periodo 2010–2025.
 
 ## Datos del estudiante
 
@@ -8,52 +8,68 @@
 |---|---|
 | Nombres y apellidos | Nils Georgia Chavez Vilchez |
 | Código de matrícula | 2024200493L |
-| Asignatura | Finanzas I (055D) – Unidad I – 2026-II – UNCP, Escuela Profesional de Economía |
+| Asignatura | Finanzas I (055D) – Unidad I – 2026-II |
+| Universidad | Universidad Nacional del Centro del Perú – Escuela Profesional de Economía |
 | Docente | Dr. Ciro Iván Machacuay Meza |
-| Tema del temario | Morosidad y calidad de cartera del sistema bancario peruano frente al ciclo económico — **N.º 10** |
+| Tema | N.º 10: Morosidad y calidad de cartera del sistema bancario peruano frente al ciclo económico |
 | Repositorio | https://github.com/NilsGeorgiaChavezVilchez/Morosidad-y-calidad-de-cartera-del-sistema-bancario-peruano-frente-al-ciclo-econ-mico |
 
-## Fuentes y endpoints
+---
 
-Las series utilizadas se obtienen mediante **BCRPData** (Banco Central de Reserva del Perú), consultadas por API el **24/09/2026**.
+## Fuente y endpoint
 
-En los casos correspondientes, BCRPData reproduce estadísticas cuya fuente primaria es otra institución. Por ejemplo, la serie de IPC utilizada para medir la inflación (`PN01273PM`) tiene como fuente primaria al Instituto Nacional de Estadística e Informática (INEI).
+La base se construye mediante extracción automatizada desde **BCRPData**, del Banco Central de Reserva del Perú.
 
-- **Endpoint utilizado:** `https://estadisticas.bcrp.gob.pe/estadisticas/series/api/{CODIGO}/csv/2010-01-01/2025-12-31`
+**Fecha de extracción:** 24/09/2026.
 
-- **Vía utilizada (API) – `01_extraccion_api.py`:** descarga automatizada de 5 series macroeconómicas:
-  - PBI: `PN01728AM`
-  - Inflación (IPC de Lima Metropolitana, variación % a 12 meses): `PN01273PM`
-  - Tasa activa: `PN07807NM`
-  - Tasa pasiva: `PN07816NM`
-  - Crédito total: `PN00528MM`
+**Endpoint general:**
 
-  Asimismo, descarga las series de cartera atrasada neta / colocaciones netas por empresa bancaria y la serie correspondiente al total del sistema bancario.
+```text
+https://estadisticas.bcrp.gob.pe/estadisticas/series/api/{CODIGO}/csv/2010-01-01/2025-12-31
+```
 
-- **Segunda vía – `02_scraping_web.py`:** no utilizada en la Unidad I. De acuerdo con la consigna de la asignatura, la segunda vía de extracción es opcional en esta unidad. El archivo se conserva para mantener la estructura solicitada de `/codigo`, pero no participa en la construcción de la base de datos.
+Series macroeconómicas utilizadas:
 
-- Los códigos, unidades y definiciones de las variables se encuentran en [`diccionario_variables.md`](diccionario_variables.md).
+| Variable | Código BCRP |
+|---|---|
+| PBI | PN01728AM |
+| Inflación | PN01273PM |
+| Tasa activa | PN07807NM |
+| Tasa pasiva | PN07816NM |
+| Crédito total | PN00528MM |
 
-- La API de BCRPData es pública y **no requiere clave de acceso**. El archivo `.env.example` documenta la variable opcional `USER_AGENT_SCRAPER`.
+También se descargan 15 series de cartera atrasada neta por banco y una serie agregada del sistema bancario.
+
+`02_scraping_web.py` no participa en la construcción de la base de la Unidad I, debido a que la segunda vía automatizada es opcional en esta unidad.
+
+---
 
 ## Parámetros congelados
 
-Para garantizar la reproducibilidad se utiliza una ventana temporal fija:
+```text
+FECHA_INICIO = 2010-01-01
+FECHA_CORTE = 2025-12-31
+```
 
-- `FECHA_INICIO = 2010-01-01`
-- `FECHA_CORTE = 2025-12-31`
+No se utilizan fechas dinámicas.
 
-Estos parámetros se utilizan en los scripts responsables de la extracción y procesamiento de los datos.
+Periodo efectivo de la base:
+
+```text
+enero de 2010 a diciembre de 2025
+```
+
+---
 
 ## Orden de ejecución
 
-Instalar primero las dependencias:
+Instalar dependencias:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Posteriormente ejecutar los scripts en el siguiente orden:
+Ejecutar:
 
 ```bash
 python 01_extraccion_api.py
@@ -61,193 +77,268 @@ python 03_limpieza_datos.py
 python 04_analisis.py
 ```
 
-Función de cada script:
+Funciones:
 
-1. `01_extraccion_api.py`: descarga mediante la API de BCRPData los archivos originales y los almacena en `datos_crudos/`.
-2. `03_limpieza_datos.py`: tipifica, limpia, integra las series y genera la base final en `datos_procesados/`.
-3. `04_analisis.py`: utiliza exclusivamente la base procesada para generar estadísticas, estimaciones, tablas y figuras en `salidas/`.
+- `01_extraccion_api.py`: descarga y guarda los archivos crudos.
+- `02_scraping_web.py`: segunda vía no utilizada en la Unidad I.
+- `03_limpieza_datos.py`: limpia, integra y genera la base procesada.
+- `04_analisis.py`: genera estimaciones, tablas, diagnósticos y figuras en `salidas/`.
 
-El archivo `02_scraping_web.py` no forma parte del flujo de ejecución de la Unidad I, debido a que la segunda vía de extracción es opcional.
-
-## Flujo reproducible
-
-```text
-BCRPData
-    |
-    v
-01_extraccion_api.py
-    |
-    v
-datos_crudos/
-    |
-    v
-03_limpieza_datos.py
-    |
-    v
-datos_procesados/datos_procesados_2024200493L.csv
-    |
-    v
-04_analisis.py
-    |
-    v
-salidas/
-```
-
-## Versiones
-
-Entorno utilizado:
-
-- Python 3.14.0
-- requests 2.34.2
-- pandas 3.0.6
-- numpy 2.5.3
-- scipy 1.18.1
-- matplotlib 3.11.2
-- seaborn 0.13.2
-- statsmodels 0.15.0
-
-Las dependencias necesarias para reproducir el proyecto se encuentran en `requirements.txt`.
-
-## Verificación de integridad
-
-El archivo procesado generado es:
-
-`datos_procesados/datos_procesados_2024200493L.csv`
-
-SHA-256 obtenido en la ejecución:
-
-```text
-044db6c86e4f8729bb44c7b9f037cc341e6d1c4c0b95cdbc68d8b7c53a9065f1
-```
-
-El hash corresponde al archivo procesado generado por `03_limpieza_datos.py` y entregado con el proyecto.
-
-Puede verificarse desde una terminal compatible mediante:
-
-```bash
-sha256sum datos_procesados/datos_procesados_2024200493L.csv
-```
-
-La ejecución secuencial de `01_extraccion_api.py`, `03_limpieza_datos.py` y `04_analisis.py` permite reproducir el proceso completo de extracción, procesamiento y análisis. Asimismo, `03_limpieza_datos.py` permite regenerar la base procesada a partir de los archivos crudos entregados.
-
-## Contenido del proyecto
-
-| Elemento | Descripción |
-|---|---|
-| `datos_crudos/` | 21 archivos descargados desde la fuente y conservados sin edición manual |
-| `datos_procesados/` | Panel banco-mes con 2 718 observaciones, 15 bancos y 192 meses |
-| `datos_procesados_2024200493L.csv` | Base final utilizada para el análisis |
-| `salidas/` | Tablas, figuras, matriz de correlaciones y resultados econométricos generados por `04_analisis.py` |
-| `log_ejecucion.txt` | Registro de fecha y hora, códigos HTTP, número de filas, estado de las extracciones y ejecución del procesamiento |
-| `diccionario_variables.md` | Definición, unidad, frecuencia y fuente de las variables |
-| `hash_sha256.txt` | Registro del hash SHA-256 de la base procesada |
-| `requirements.txt` | Dependencias necesarias para reproducir el proyecto |
-| `.env.example` | Documentación de variables de entorno opcionales |
-| `.gitignore` | Archivos excluidos del control de versiones |
+---
 
 ## Base procesada
 
-La ejecución de `03_limpieza_datos.py` genera:
+Archivo final:
 
-- **2 718 observaciones**
-- **15 bancos**
-- **192 meses**
-- **Periodo:** enero de 2010 a diciembre de 2025
-- **Valores faltantes en el archivo final:** 0
-- **8 variables sustantivas**
+```text
+datos_procesados/datos_procesados_2024200493L.csv
+```
 
-Las principales columnas de la base procesada son:
+Resultado final:
 
-- `fecha`
-- `banco`
-- `atrasada_neta`
-- `atrasada_neta_sistema`
-- `pbi`
-- `inflacion`
-- `tasa_activa`
-- `tasa_pasiva`
-- `spread`
-- `cartera_total`
+```text
+Observaciones: 2718
+Bancos: 15
+Meses: 192
+Rango: 2010-01-01 a 2025-12-01
+Valores faltantes finales: 0
+Meses macro con alguna imputación: 0
+Valores atípicos identificados: 14
+Variables sustantivas: 8
+```
 
-## Notas metodológicas
+Columnas:
 
-### Variable de interés
+```text
+Id
+fecha
+banco
+atrasada_neta
+atrasada_neta_sistema
+pbi
+inflacion
+tasa_activa
+tasa_pasiva
+spread
+cartera_total
+dato_macro_imputado
+```
 
-La variable de interés es la **cartera atrasada neta / colocaciones netas (%)** por empresa bancaria.
+Las definiciones, unidades, frecuencias y códigos de las variables se encuentran en:
 
-La serie utilizada puede registrar valores negativos cuando las provisiones asociadas superan el valor correspondiente de la cartera atrasada. Los datos originales obtenidos de BCRPData se conservan sin modificaciones manuales.
+```text
+diccionario_variables.md
+```
 
-### Inflación
+---
 
-La inflación se representa mediante el **IPC de Lima Metropolitana, variación porcentual a 12 meses**, correspondiente al código `PN01273PM`.
+## Tratamiento de datos
 
-Esta variable mide la variación porcentual del nivel de precios respecto al mismo mes del año anterior.
+Los archivos crudos se conservan sin edición manual.
 
-La serie se obtiene mediante BCRPData y tiene como fuente primaria al INEI.
+Las variables macroeconómicas pueden interpolarse linealmente únicamente cuando existen pocos faltantes internos. No se interpolan extremos ni faltantes bancarios.
 
-### Posible quiebre de la serie en enero de 2018
+En la ejecución final no fue necesario realizar imputaciones macroeconómicas.
 
-Se observa un salto simultáneo en las series de varios bancos entre diciembre de 2017 y enero de 2018. Por ejemplo, en los datos utilizados se observa un cambio aproximado de −0,21 % a 3,02 % para BCP y de −0,25 % a 3,1 % para el total del sistema.
+Los valores atípicos se identifican mediante:
 
-Este comportamiento se considera un **posible quiebre estructural** y su causa debe contrastarse con la documentación metodológica de la fuente.
+```text
+|z modificado| > 3.5
+```
 
-Los datos crudos no son modificados para eliminar dicho cambio.
+utilizando MAD. Se identificaron 14 valores, pero no se eliminaron ni modificaron.
 
-`04_analisis.py` incorpora la variable ficticia `post2018`, definida mediante la constante `FECHA_QUIEBRE`, con el propósito de controlar estadísticamente este posible cambio estructural. La figura correspondiente también identifica temporalmente el punto de quiebre.
+El panel es no balanceado porque algunas entidades presentan series más cortas.
 
-Esta situación debe considerarse una limitación al interpretar los resultados.
+---
 
-### Panel no balanceado
+## Variables derivadas
 
-El panel no es completamente balanceado debido a que algunas entidades tienen una historia disponible más corta.
+`03_limpieza_datos.py` construye:
+
+```text
+spread = tasa_activa - tasa_pasiva
+```
+
+`04_analisis.py` genera para el análisis:
+
+```text
+ln_cartera
+pbi_lag3
+pbi_lag6
+pbi_lag12
+d_atrasada
+d_spread
+```
+
+Estas transformaciones se crean durante el análisis y no modifican la base procesada original.
+
+---
+
+## Análisis realizado
+
+`04_analisis.py` genera:
+
+- estadísticos descriptivos;
+- matriz de correlaciones;
+- correlaciones de Pearson y p-valores;
+- correlación parcial;
+- PBI contemporáneo y rezagos de 3, 6 y 12 meses;
+- Modelo A para el total del sistema;
+- Modelo B de panel con efectos fijos por banco;
+- Modelo C de robustez de corto plazo;
+- VIF;
+- Breusch-Pagan;
+- Breusch-Godfrey;
+- Jarque-Bera;
+- pruebas ADF en niveles y primeras diferencias;
+- diagnóstico ADF de residuos;
+- ocho figuras.
+
+### Modelo A
+
+```text
+atrasada_neta_sistema
+~ pbi + inflacion + spread + ln_cartera
+```
+
+Errores estándar HAC Newey-West con 12 rezagos.
+
+### Modelo B
+
+```text
+atrasada_neta
+~ pbi + inflacion + spread + ln_cartera + C(banco)
+```
+
+Errores estándar agrupados por banco.
+
+### Modelo C
+
+```text
+d_atrasada
+~ pbi + inflacion + d_spread + ln_cartera
+```
+
+Se utiliza como especificación de robustez de corto plazo.
+
+---
+
+## Estacionariedad
+
+Las pruebas ADF indicaron que:
+
+- `atrasada_neta_sistema`: no estacionaria en niveles;
+- `spread`: no estacionaria en niveles;
+- `pbi`: estacionaria;
+- `inflacion`: estacionaria al 5 %;
+- `ln_cartera`: estacionaria.
+
+En primeras diferencias:
+
+- `d_atrasada`: estacionaria;
+- `d_spread`: estacionaria.
+
+Las diferencias se generan únicamente dentro de `04_analisis.py`.
+
+---
+
+## Salidas
+
+La carpeta `salidas/` contiene las tablas, diagnósticos, regresiones y ocho figuras generadas automáticamente desde la base procesada.
 
 Entre ellas:
 
-- Cencosud: 80 meses, desde julio de 2012 hasta febrero de 2019.
-- ICBC: 142 meses, desde marzo de 2014.
+```text
+estadisticos_descriptivos.csv
+matriz_correlaciones.csv
+correlaciones_pearson_pvalores.csv
+correlaciones_pbi_rezagos.csv
+correlacion_parcial.csv
+tabla_por_banco.csv
+modelos_pbi_rezagos.csv
+diagnostico_vif.csv
+diagnostico_breusch_pagan.csv
+diagnostico_breusch_godfrey.csv
+diagnostico_jarque_bera.csv
+pruebas_adf.csv
+pruebas_adf_diferencias.csv
+diagnostico_adf_residuos.csv
+modelo_robustez_diferencias.csv
+regresion_morosidad.txt
+```
 
-No se generan observaciones artificiales para completar estos periodos.
+Figuras:
 
-### Total del sistema
+```text
+figura_01_morosidad_vs_pbi.png
+figura_02_tasas_y_spread.png
+figura_03_cartera_creditos.png
+figura_04_heatmap_correlaciones.png
+figura_05_regresion_morosidad_pbi.png
+figura_06_distribucion_por_banco.png
+figura_07_correlaciones_pbi_rezagos.png
+figura_08_cambio_morosidad_vs_pbi.png
+```
 
-La serie correspondiente al total del sistema bancario se incorpora como:
+---
 
-`atrasada_neta_sistema`
+## Integridad y reproducibilidad
 
-No se considera como un banco adicional dentro del panel.
+SHA-256 del archivo procesado:
 
-### Valores atípicos
+```text
+f4c97a840b37602261d66b2ce445410ed58c674e8f621eb333e665ea68c8203b
+```
 
-Los valores atípicos se identifican mediante el criterio:
+El mismo valor se guarda en:
 
-`|z modificado| > 3,5`
+```text
+hash_sha256.txt
+```
 
-Los valores detectados se marcan para fines de diagnóstico, pero **no se eliminan automáticamente**, con el objetivo de conservar las observaciones reales de la fuente.
+El archivo `log_ejecucion.txt` registra fecha y hora, códigos HTTP, número de filas descargadas y resultados principales del procesamiento.
 
-### Modelos
+La API no requiere clave privada. `.env.example` documenta:
 
-El análisis incluye dos especificaciones principales:
+```text
+USER_AGENT_SCRAPER=EstudianteUNCP-FinanzasI/1.0 (2024200493L)
+```
 
-- **Modelo A:** análisis de serie de tiempo del total del sistema bancario con errores HAC.
-- **Modelo B:** modelo de panel con efectos fijos por banco y errores agrupados.
+Las versiones exactas de las librerías se encuentran en `requirements.txt`.
 
-Las estimaciones se generan automáticamente mediante `04_analisis.py` a partir de la base ubicada en `datos_procesados/`.
+---
 
-## Acceso automatizado a la fuente
+## Estructura principal del proyecto
 
-La extracción utiliza únicamente información pública disponible mediante la API de BCRPData.
+```text
+datos_crudos/
+datos_procesados/
+salidas/
+01_extraccion_api.py
+02_scraping_web.py
+03_limpieza_datos.py
+04_analisis.py
+diccionario_variables.md
+README.md
+requirements.txt
+.env.example
+log_ejecucion.txt
+hash_sha256.txt
+```
 
-El script incorpora:
+---
 
-- User-Agent identificable.
-- Pausa de 1 segundo entre solicitudes.
-- Reintentos ante fallas de conexión.
-- Registro del código HTTP.
-- Registro del número de filas obtenidas.
-- Conservación de los archivos crudos sin edición manual.
+## Repositorio
 
-Estas medidas permiten documentar y reproducir el proceso de obtención de los datos.
+```text
+https://github.com/NilsGeorgiaChavezVilchez/Morosidad-y-calidad-de-cartera-del-sistema-bancario-peruano-frente-al-ciclo-econ-mico
+```
 
-## Cita de la fuente (APA 7)
+El historial debe conservar al menos tres commits realizados en fechas distintas.
 
-Banco Central de Reserva del Perú. (2026). *BCRPData: Series estadísticas mensuales* [Base de datos]. Recuperado el 24 de setiembre de 2026 de https://estadisticas.bcrp.gob.pe/estadisticas/series/
+---
+
+## Fuente
+
+Banco Central de Reserva del Perú. (2026). *BCRPData: Series estadísticas* [Base de datos]. Recuperado el 24 de setiembre de 2026 de https://estadisticas.bcrp.gob.pe/estadisticas/series/

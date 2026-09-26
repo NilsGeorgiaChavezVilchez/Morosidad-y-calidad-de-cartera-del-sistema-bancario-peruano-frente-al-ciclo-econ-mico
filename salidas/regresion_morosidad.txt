@@ -1,80 +1,248 @@
-MODELO A: serie de tiempo del sistema (errores HAC Newey-West, 12 rezagos)
+MODELO A: TOTAL DEL SISTEMA BANCARIO
+Errores estándar HAC Newey-West con 12 rezagos
+
                               OLS Regression Results                             
 =================================================================================
-Dep. Variable:     atrasada_neta_sistema   R-squared:                       0.985
-Model:                               OLS   Adj. R-squared:                  0.985
-Method:                    Least Squares   F-statistic:                     655.6
-Date:                   Fri, 25 Sep 2026   Prob (F-statistic):          4.83e-116
-Time:                           00:26:48   Log-Likelihood:                -26.766
-No. Observations:                    192   AIC:                             65.53
-Df Residuals:                        186   BIC:                             85.08
-Df Model:                              5                                         
+Dep. Variable:     atrasada_neta_sistema   R-squared:                       0.794
+Model:                               OLS   Adj. R-squared:                  0.789
+Method:                    Least Squares   F-statistic:                     30.85
+Date:                   Sat, 26 Sep 2026   Prob (F-statistic):           1.01e-19
+Time:                           00:40:42   Log-Likelihood:                -280.12
+No. Observations:                    192   AIC:                             570.2
+Df Residuals:                        187   BIC:                             586.5
+Df Model:                              4                                         
 Covariance Type:                     HAC                                         
 ==============================================================================
                  coef    std err          z      P>|z|      [0.025      0.975]
 ------------------------------------------------------------------------------
-Intercept    -18.8429      5.717     -3.296      0.001     -30.048      -7.638
-pbi            0.0044      0.002      1.746      0.081      -0.001       0.009
-inflacion      0.0480      0.019      2.546      0.011       0.011       0.085
-spread         0.0702      0.071      0.987      0.324      -0.069       0.210
-ln_cartera     1.3946      0.404      3.449      0.001       0.602       2.187
-post2018       3.7892      0.169     22.479      0.000       3.459       4.120
+Intercept    -40.5511     16.767     -2.419      0.016     -73.413      -7.689
+pbi            0.0045      0.007      0.599      0.549      -0.010       0.019
+inflacion     -0.1088      0.097     -1.122      0.262      -0.299       0.081
+spread        -0.2664      0.186     -1.435      0.151      -0.630       0.097
+ln_cartera     3.7128      1.162      3.194      0.001       1.435       5.991
 ==============================================================================
-Omnibus:                       11.517   Durbin-Watson:                   0.107
-Prob(Omnibus):                  0.003   Jarque-Bera (JB):               12.101
-Skew:                           0.611   Prob(JB):                      0.00236
-Kurtosis:                       3.141   Cond. No.                     1.64e+03
+Omnibus:                       32.334   Durbin-Watson:                   0.070
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):               12.755
+Skew:                          -0.410   Prob(JB):                      0.00170
+Kurtosis:                       2.040   Cond. No.                     1.59e+03
 ==============================================================================
 
 Notes:
 [1] Standard Errors are heteroscedasticity and autocorrelation robust (HAC) using 12 lags and without small sample correction
-[2] The condition number is large, 1.64e+03. This might indicate that there are
+[2] The condition number is large, 1.59e+03. This might indicate that there are
 strong multicollinearity or other numerical problems.
 
+================================================================================
+MODELOS CON REZAGOS DEL PBI
 
-MODELO B: panel con efectos fijos por banco (errores agrupados por banco)
+
+PBI contemporaneo
+                              OLS Regression Results                             
+=================================================================================
+Dep. Variable:     atrasada_neta_sistema   R-squared:                       0.794
+Model:                               OLS   Adj. R-squared:                  0.789
+Method:                    Least Squares   F-statistic:                     30.85
+Date:                   Sat, 26 Sep 2026   Prob (F-statistic):           1.01e-19
+Time:                           00:40:42   Log-Likelihood:                -280.12
+No. Observations:                    192   AIC:                             570.2
+Df Residuals:                        187   BIC:                             586.5
+Df Model:                              4                                         
+Covariance Type:                     HAC                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept    -40.5511     16.767     -2.419      0.016     -73.413      -7.689
+pbi            0.0045      0.007      0.599      0.549      -0.010       0.019
+inflacion     -0.1088      0.097     -1.122      0.262      -0.299       0.081
+spread        -0.2664      0.186     -1.435      0.151      -0.630       0.097
+ln_cartera     3.7128      1.162      3.194      0.001       1.435       5.991
+==============================================================================
+Omnibus:                       32.334   Durbin-Watson:                   0.070
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):               12.755
+Skew:                          -0.410   Prob(JB):                      0.00170
+Kurtosis:                       2.040   Cond. No.                     1.59e+03
+==============================================================================
+
+Notes:
+[1] Standard Errors are heteroscedasticity and autocorrelation robust (HAC) using 12 lags and without small sample correction
+[2] The condition number is large, 1.59e+03. This might indicate that there are
+strong multicollinearity or other numerical problems.
+
+PBI rezago 3 meses
+                              OLS Regression Results                             
+=================================================================================
+Dep. Variable:     atrasada_neta_sistema   R-squared:                       0.804
+Model:                               OLS   Adj. R-squared:                  0.799
+Method:                    Least Squares   F-statistic:                     30.64
+Date:                   Sat, 26 Sep 2026   Prob (F-statistic):           1.51e-19
+Time:                           00:40:42   Log-Likelihood:                -270.86
+No. Observations:                    189   AIC:                             551.7
+Df Residuals:                        184   BIC:                             567.9
+Df Model:                              4                                         
+Covariance Type:                     HAC                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept    -41.6915     16.666     -2.502      0.012     -74.356      -9.027
+pbi_lag3       0.0058      0.008      0.684      0.494      -0.011       0.022
+inflacion     -0.0975      0.091     -1.067      0.286      -0.277       0.082
+spread        -0.2818      0.181     -1.560      0.119      -0.636       0.072
+ln_cartera     3.8157      1.160      3.290      0.001       1.543       6.089
+==============================================================================
+Omnibus:                       30.791   Durbin-Watson:                   0.074
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):               12.514
+Skew:                          -0.414   Prob(JB):                      0.00192
+Kurtosis:                       2.049   Cond. No.                     1.58e+03
+==============================================================================
+
+Notes:
+[1] Standard Errors are heteroscedasticity and autocorrelation robust (HAC) using 12 lags and without small sample correction
+[2] The condition number is large, 1.58e+03. This might indicate that there are
+strong multicollinearity or other numerical problems.
+
+PBI rezago 6 meses
+                              OLS Regression Results                             
+=================================================================================
+Dep. Variable:     atrasada_neta_sistema   R-squared:                       0.814
+Model:                               OLS   Adj. R-squared:                  0.810
+Method:                    Least Squares   F-statistic:                     31.85
+Date:                   Sat, 26 Sep 2026   Prob (F-statistic):           4.35e-20
+Time:                           00:40:42   Log-Likelihood:                -261.40
+No. Observations:                    186   AIC:                             532.8
+Df Residuals:                        181   BIC:                             548.9
+Df Model:                              4                                         
+Covariance Type:                     HAC                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept    -42.8178     16.586     -2.582      0.010     -75.326     -10.309
+pbi_lag6       0.0022      0.007      0.300      0.764      -0.012       0.016
+inflacion     -0.0831      0.085     -0.981      0.327      -0.249       0.083
+spread        -0.2956      0.179     -1.648      0.099      -0.647       0.056
+ln_cartera     3.9161      1.156      3.388      0.001       1.651       6.181
+==============================================================================
+Omnibus:                       36.404   Durbin-Watson:                   0.079
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):               13.494
+Skew:                          -0.432   Prob(JB):                      0.00117
+Kurtosis:                       2.003   Cond. No.                     1.57e+03
+==============================================================================
+
+Notes:
+[1] Standard Errors are heteroscedasticity and autocorrelation robust (HAC) using 12 lags and without small sample correction
+[2] The condition number is large, 1.57e+03. This might indicate that there are
+strong multicollinearity or other numerical problems.
+
+PBI rezago 12 meses
+                              OLS Regression Results                             
+=================================================================================
+Dep. Variable:     atrasada_neta_sistema   R-squared:                       0.830
+Model:                               OLS   Adj. R-squared:                  0.826
+Method:                    Least Squares   F-statistic:                     29.43
+Date:                   Sat, 26 Sep 2026   Prob (F-statistic):           1.02e-18
+Time:                           00:40:42   Log-Likelihood:                -243.81
+No. Observations:                    180   AIC:                             497.6
+Df Residuals:                        175   BIC:                             513.6
+Df Model:                              4                                         
+Covariance Type:                     HAC                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept    -50.3655     15.670     -3.214      0.001     -81.079     -19.652
+pbi_lag12      0.0081      0.009      0.884      0.377      -0.010       0.026
+inflacion     -0.0797      0.085     -0.938      0.348      -0.246       0.087
+spread        -0.2618      0.181     -1.443      0.149      -0.617       0.094
+ln_cartera     4.4811      1.087      4.124      0.000       2.351       6.611
+==============================================================================
+Omnibus:                       38.200   Durbin-Watson:                   0.091
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):               12.800
+Skew:                          -0.406   Prob(JB):                      0.00166
+Kurtosis:                       1.976   Cond. No.                     1.58e+03
+==============================================================================
+
+Notes:
+[1] Standard Errors are heteroscedasticity and autocorrelation robust (HAC) using 12 lags and without small sample correction
+[2] The condition number is large, 1.58e+03. This might indicate that there are
+strong multicollinearity or other numerical problems.
+
+================================================================================
+MODELO B: PANEL CON EFECTOS FIJOS POR BANCO
+Errores estándar agrupados por banco
+
                             OLS Regression Results                            
 ==============================================================================
-Dep. Variable:          atrasada_neta   R-squared:                       0.586
-Model:                            OLS   Adj. R-squared:                  0.583
-Method:                 Least Squares   F-statistic:                 2.312e+04
-Date:                Fri, 25 Sep 2026   Prob (F-statistic):           6.80e-27
-Time:                        00:26:48   Log-Likelihood:                -6623.2
-No. Observations:                2718   AIC:                         1.329e+04
-Df Residuals:                    2698   BIC:                         1.340e+04
-Df Model:                          19                                         
+Dep. Variable:          atrasada_neta   R-squared:                       0.457
+Model:                            OLS   Adj. R-squared:                  0.454
+Method:                 Least Squares   F-statistic:                 2.428e+04
+Date:                Sat, 26 Sep 2026   Prob (F-statistic):           1.03e-26
+Time:                        00:40:42   Log-Likelihood:                -6991.8
+No. Observations:                2718   AIC:                         1.402e+04
+Df Residuals:                    2699   BIC:                         1.413e+04
+Df Model:                          18                                         
 Covariance Type:              cluster                                         
 ===========================================================================================
                               coef    std err          z      P>|z|      [0.025      0.975]
 -------------------------------------------------------------------------------------------
-Intercept                 -14.7550     14.718     -1.003      0.316     -43.601      14.091
-C(banco)[T.BCP]             4.8783   3.97e-14   1.23e+14      0.000       4.878       4.878
-C(banco)[T.BanBif]          5.1467   1.79e-13   2.87e+13      0.000       5.147       5.147
-C(banco)[T.Cencosud]        4.5552      0.498      9.154      0.000       3.580       5.530
-C(banco)[T.Comercio]        5.1529   1.65e-13   3.13e+13      0.000       5.153       5.153
-C(banco)[T.Continental]     4.6847    1.8e-13    2.6e+13      0.000       4.685       4.685
-C(banco)[T.Falabella]       4.8917   1.03e-13   4.73e+13      0.000       4.892       4.892
-C(banco)[T.Financiero]      6.3774   1.17e-13   5.43e+13      0.000       6.377       6.377
-C(banco)[T.GNB]             4.7739   1.34e-14   3.57e+14      0.000       4.774       4.774
-C(banco)[T.ICBC]            2.4336      0.140     17.380      0.000       2.159       2.708
-C(banco)[T.Interbank]       4.1654   6.97e-14   5.98e+13      0.000       4.165       4.165
-C(banco)[T.MiBanco]         6.3472   4.92e-14   1.29e+14      0.000       6.347       6.347
-C(banco)[T.Ripley]          3.3153    3.2e-14   1.04e+14      0.000       3.315       3.315
-C(banco)[T.Santander]       3.6423   1.99e-14   1.83e+14      0.000       3.642       3.642
-C(banco)[T.Scotiabank]      5.1429   1.41e-14   3.64e+14      0.000       5.143       5.143
-pbi                         0.0166      0.011      1.566      0.117      -0.004       0.037
-inflacion                  -0.0386      0.038     -1.017      0.309      -0.113       0.036
-spread                      0.0817      0.069      1.185      0.236      -0.053       0.217
-ln_cartera                  0.5970      1.213      0.492      0.623      -1.780       2.974
-post2018                    5.8111      1.919      3.029      0.002       2.051       9.571
+Intercept                 -48.0964      6.476     -7.427      0.000     -60.788     -35.404
+C(banco)[T.BCP]             4.8783   2.82e-14   1.73e+14      0.000       4.878       4.878
+C(banco)[T.BanBif]          5.1467   2.14e-13   2.41e+13      0.000       5.147       5.147
+C(banco)[T.Cencosud]        3.3454      0.102     32.741      0.000       3.145       3.546
+C(banco)[T.Comercio]        5.1529   1.46e-13   3.53e+13      0.000       5.153       5.153
+C(banco)[T.Continental]     4.6847   1.96e-13   2.39e+13      0.000       4.685       4.685
+C(banco)[T.Falabella]       4.8917   1.35e-13   3.62e+13      0.000       4.892       4.892
+C(banco)[T.Financiero]      6.3774    1.4e-13   4.54e+13      0.000       6.377       6.377
+C(banco)[T.GNB]             4.7739   2.94e-14   1.62e+14      0.000       4.774       4.774
+C(banco)[T.ICBC]            2.1684      0.218      9.932      0.000       1.741       2.596
+C(banco)[T.Interbank]       4.1654   5.34e-14   7.81e+13      0.000       4.165       4.165
+C(banco)[T.MiBanco]         6.3472   4.07e-14   1.56e+14      0.000       6.347       6.347
+C(banco)[T.Ripley]          3.3153   5.31e-14   6.24e+13      0.000       3.315       3.315
+C(banco)[T.Santander]       3.6423   4.71e-14   7.74e+13      0.000       3.642       3.642
+C(banco)[T.Scotiabank]      5.1429   3.39e-14   1.52e+14      0.000       5.143       5.143
+pbi                         0.0169      0.011      1.571      0.116      -0.004       0.038
+inflacion                  -0.2889      0.109     -2.646      0.008      -0.503      -0.075
+spread                     -0.4485      0.216     -2.080      0.038      -0.871      -0.026
+ln_cartera                  4.1740      0.443      9.421      0.000       3.306       5.042
 ==============================================================================
-Omnibus:                      834.088   Durbin-Watson:                   0.065
-Prob(Omnibus):                  0.000   Jarque-Bera (JB):            36260.067
-Skew:                          -0.712   Prob(JB):                         0.00
-Kurtosis:                      20.837   Cond. No.                     1.64e+03
+Omnibus:                      988.376   Durbin-Watson:                   0.069
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):            27366.794
+Skew:                          -1.123   Prob(JB):                         0.00
+Kurtosis:                      18.382   Cond. No.                     1.59e+03
 ==============================================================================
 
 Notes:
 [1] Standard Errors are robust to cluster correlation (CRV1)
-[2] The condition number is large, 1.64e+03. This might indicate that there are
+[2] The condition number is large, 1.59e+03. This might indicate that there are
 strong multicollinearity or other numerical problems.
+
+================================================================================
+MODELO C: ROBUSTEZ DE CORTO PLAZO
+Variable dependiente: primera diferencia de atrasada_neta_sistema
+Errores estándar HAC Newey-West con 12 rezagos
+
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:             d_atrasada   R-squared:                       0.007
+Model:                            OLS   Adj. R-squared:                 -0.014
+Method:                 Least Squares   F-statistic:                     1.604
+Date:                Sat, 26 Sep 2026   Prob (F-statistic):              0.175
+Time:                        00:40:42   Log-Likelihood:                -8.3241
+No. Observations:                 191   AIC:                             26.65
+Df Residuals:                     186   BIC:                             42.91
+Df Model:                           4                                         
+Covariance Type:                  HAC                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept      0.0855      0.340      0.252      0.801      -0.581       0.752
+pbi           -0.0018      0.001     -2.303      0.021      -0.003      -0.000
+inflacion     -0.0074      0.013     -0.556      0.578      -0.033       0.019
+d_spread       0.0542      0.084      0.647      0.518      -0.110       0.219
+ln_cartera    -0.0025      0.030     -0.084      0.933      -0.061       0.056
+==============================================================================
+Omnibus:                      395.708   Durbin-Watson:                   1.936
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):           197583.994
+Skew:                          11.987   Prob(JB):                         0.00
+Kurtosis:                     158.732   Cond. No.                         431.
+==============================================================================
+
+Notes:
+[1] Standard Errors are heteroscedasticity and autocorrelation robust (HAC) using 12 lags and without small sample correction

@@ -21,9 +21,9 @@ BCRPData constituye la vía de obtención de las series utilizadas. En determina
 
 | Variable | Definición | Unidad | Frecuencia | Código BCRP / origen |
 |---|---|---|---|---|
-| `Id` | Identificador correlativo de la observación. No constituye una variable sustantiva. | – | – | Generada en `03_limpieza_datos.py` |
+| `Id` | Identificador correlativo de la observación. No constituye una variable sustantiva. | Identificador | Mensual | Generada en `03_limpieza_datos.py` |
 | `fecha` | Primer día del mes correspondiente a la observación. Se utiliza como llave temporal para integrar las series. | AAAA-MM-DD | Mensual | Cabecera temporal de las series obtenidas mediante BCRPData |
-| `banco` | Empresa bancaria correspondiente a la observación. Se utiliza como identificador de entidad dentro del panel. | Texto | – | Construida a partir de las series bancarias detalladas en la tabla de bancos |
+| `banco` | Empresa bancaria correspondiente a la observación. Se utiliza como identificador de entidad dentro del panel. | Texto | Mensual | Construida a partir de las series bancarias detalladas en la tabla de bancos |
 | `atrasada_neta` | **Variable endógena.** Cartera atrasada neta / colocaciones netas de cada empresa bancaria. Al tratarse de una medida neta de provisiones, puede registrar valores negativos cuando las provisiones superan la cartera atrasada. | % | Mensual | `PN07729EM` a `PN07745EM`, según entidad (ver tabla de bancos) |
 | `atrasada_neta_sistema` | Cartera atrasada neta / colocaciones netas correspondiente al total de empresas bancarias. Se utiliza como indicador agregado del sistema y no como una entidad adicional del panel. | % | Mensual | `PN07746EM` |
 | `pbi` | Producto bruto interno, variación porcentual interanual. Representa la evolución del ciclo económico. | % | Mensual | `PN01728AM` |
@@ -32,6 +32,22 @@ BCRPData constituye la vía de obtención de las series utilizadas. En determina
 | `tasa_pasiva` | Tasa de interés pasiva promedio de las empresas bancarias en moneda nacional (TIPMN), expresada en términos efectivos anuales. | % anual | Mensual | `PN07816NM` |
 | `spread` | Diferencial bancario calculado como `tasa_activa - tasa_pasiva`. | Puntos porcentuales | Mensual | Variable derivada en `03_limpieza_datos.py` |
 | `cartera_total` | Crédito del sistema bancario al sector privado, registrado a fin de periodo. | Millones de S/ | Mensual | `PN00528MM` |
+| `dato_macro_imputado` | Indicador técnico de trazabilidad que identifica si alguna variable macroeconómica del mes presentaba originalmente un valor faltante antes del tratamiento. En la ejecución final todos sus valores son 0. | 0 = no; 1 = sí | Mensual | Generada en `03_limpieza_datos.py` |
+
+## Variables derivadas durante el análisis
+
+Las siguientes variables no forman parte del archivo procesado original. Se generan automáticamente durante la ejecución de `04_analisis.py`.
+
+| Variable | Definición | Cálculo | Uso |
+|---|---|---|---|
+| `ln_cartera` | Logaritmo natural de la cartera total. | `ln(cartera_total)` | Variable de control en los modelos |
+| `pbi_lag3` | PBI rezagado 3 meses. | `pbi.shift(3)` | Análisis de rezagos |
+| `pbi_lag6` | PBI rezagado 6 meses. | `pbi.shift(6)` | Análisis de rezagos |
+| `pbi_lag12` | PBI rezagado 12 meses. | `pbi.shift(12)` | Análisis de rezagos |
+| `d_atrasada` | Primera diferencia de la cartera atrasada neta del sistema. | `atrasada_neta_sistema(t) - atrasada_neta_sistema(t-1)` | Modelo C |
+| `d_spread` | Primera diferencia del spread. | `spread(t) - spread(t-1)` | Modelo C |
+
+Estas transformaciones son determinísticas y reproducibles y no modifican `datos_procesados_2024200493L.csv`.
 
 ## Bancos y códigos de cartera atrasada neta / colocaciones netas
 
@@ -56,27 +72,59 @@ BCRPData constituye la vía de obtención de las series utilizadas. En determina
 
 ## Notas de tratamiento
 
-### Posible quiebre estructural en enero de 2018
+### Comportamiento observado alrededor de enero de 2018
 
-Se observa un salto simultáneo en las series de varios bancos entre diciembre de 2017 y enero de 2018. Por ejemplo, en los datos utilizados se observa un cambio aproximado de −0,21 % a 3,02 % para BCP y de −0,25 % a 3,1 % para el total del sistema.
+Durante la revisión de las series se observa un cambio de nivel simultáneo en varios indicadores de cartera atrasada neta alrededor de enero de 2018.
 
-Este comportamiento se considera un **posible quiebre estructural**. La información disponible en la base, por sí sola, no permite atribuir de manera concluyente su causa a un cambio metodológico o a un fenómeno económico específico, por lo que su interpretación debe contrastarse con la documentación de la fuente.
+Los valores publicados por BCRPData se conservan sin modificaciones.
 
-Los datos crudos se conservan sin modificación. `04_analisis.py` incorpora la variable ficticia `post2018`, definida mediante la constante `FECHA_QUIEBRE`, para controlar estadísticamente este posible cambio estructural. Asimismo, la figura correspondiente identifica temporalmente el punto de quiebre.
+La información disponible no permite atribuir este comportamiento de manera concluyente a una modificación metodológica o a un fenómeno económico específico.
 
-Esta característica se considera una limitación al interpretar los resultados.
+Por este motivo, el cambio se considera únicamente como una característica de la evolución histórica de las series y debe tenerse presente al interpretar los resultados.
+
+No se eliminan observaciones ni se incorpora una variable ficticia para modificar este comportamiento.
 
 ### Valores faltantes
 
 El archivo procesado final no presenta valores faltantes.
 
+Las variables macroeconómicas son revisadas previamente para identificar faltantes. `03_limpieza_datos.py` está preparado para aplicar interpolación lineal únicamente cuando existen pocos huecos internos.
+
+No se interpolan valores faltantes ubicados en los extremos de las series.
+
+En la ejecución final:
+
+```text
+Valores faltantes finales: 0
+Meses macro con alguna imputación: 0
+```
+
+Por tanto, no fue necesario aplicar imputación sobre ninguna variable macroeconómica de la base final.
+
 Los bancos que disponen de una historia más corta se mantienen dentro de un **panel no balanceado** y sus periodos no disponibles no son imputados artificialmente.
+
+### Variable técnica `dato_macro_imputado`
+
+La variable `dato_macro_imputado` se conserva como indicador técnico de trazabilidad.
+
+Su interpretación es:
+
+```text
+0 = el mes no presentaba valores macroeconómicos faltantes antes del tratamiento.
+1 = al menos una variable macroeconómica del mes presentaba originalmente un valor faltante.
+```
+
+En la ejecución final todos los registros toman el valor `0`.
+
+Esta variable no participa en las estimaciones econométricas.
 
 ### Valores atípicos
 
 Los valores atípicos se identifican mediante el **puntaje z modificado basado en la desviación absoluta mediana (MAD)**, utilizando como criterio:
 
 `|z modificado| > 3,5`
+
+En la ejecución final se identificaron **14 valores atípicos**.
 
 Las observaciones identificadas se registran en `log_ejecucion.txt`, pero **no se eliminan automáticamente**, con el objetivo de conservar los datos reales obtenidos de la fuente.
 
@@ -85,6 +133,17 @@ Las observaciones identificadas se registran en `log_ejecucion.txt`, pero **no s
 La serie `PN07746EM` corresponde al agregado del sistema bancario.
 
 Se incorpora a la base mediante la variable `atrasada_neta_sistema` y **no se contabiliza como un banco adicional** dentro de las 15 entidades que conforman el panel.
+
+### Panel no balanceado
+
+El panel no es completamente balanceado debido a que algunas entidades presentan una historia disponible más corta.
+
+En particular:
+
+- Cencosud dispone de 80 meses, entre julio de 2012 y febrero de 2019.
+- ICBC dispone de 142 meses, desde marzo de 2014 hasta diciembre de 2025.
+
+No se generan observaciones artificiales para completar los periodos en los que la fuente no presenta información.
 
 ### Ventana temporal
 
@@ -95,6 +154,14 @@ La ventana utilizada en el proyecto está congelada mediante los siguientes par�
 
 Estos parámetros son utilizados por `01_extraccion_api.py` para realizar la extracción y por `03_limpieza_datos.py` para controlar el periodo de procesamiento.
 
+El rango efectivo de la base final es:
+
+```text
+2010-01-01 a 2025-12-01
+```
+
+El último registro corresponde a diciembre de 2025 debido a la frecuencia mensual de las series.
+
 La segunda vía de extracción (`02_scraping_web.py`) **no se utiliza en la Unidad I**, por lo que no participa en la construcción de la base procesada.
 
 ## Procedencia de las variables
@@ -103,11 +170,41 @@ Las variables originales se descargan automáticamente mediante:
 
 `01_extraccion_api.py`
 
-Las variables derivadas y la estructura final del panel se generan mediante:
+Entre ellas se encuentran:
+
+- `pbi`
+- `inflacion`
+- `tasa_activa`
+- `tasa_pasiva`
+- `cartera_total`
+- series bancarias utilizadas para `atrasada_neta`
+- `atrasada_neta_sistema`
+
+La estructura final del panel y las variables derivadas incluidas directamente en el archivo procesado se generan mediante:
 
 `03_limpieza_datos.py`
 
-Finalmente, las tablas, figuras y estimaciones se generan desde el archivo procesado mediante:
+Entre ellas:
+
+- `Id`
+- `banco`
+- `spread`
+- `dato_macro_imputado`
+
+Las transformaciones utilizadas únicamente durante el análisis econométrico se generan mediante:
+
+`04_analisis.py`
+
+Entre ellas:
+
+- `ln_cartera`
+- `pbi_lag3`
+- `pbi_lag6`
+- `pbi_lag12`
+- `d_atrasada`
+- `d_spread`
+
+Finalmente, las tablas, figuras, diagnósticos y estimaciones se generan desde el archivo procesado mediante:
 
 `04_analisis.py`
 
@@ -120,7 +217,7 @@ datos_crudos/
         ↓
 03_limpieza_datos.py
         ↓
-datos_procesados_2024200493L.csv
+datos_procesados/datos_procesados_2024200493L.csv
         ↓
 04_analisis.py
         ↓
