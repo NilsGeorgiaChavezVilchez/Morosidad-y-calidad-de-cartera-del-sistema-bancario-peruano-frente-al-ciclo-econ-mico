@@ -9,7 +9,7 @@ La base procesada corresponde a un panel banco-mes no balanceado con **2 718 obs
 
 ## Fuente de los datos
 
-Las series utilizadas en la investigación se obtienen mediante **BCRPData – Banco Central de Reserva del Perú**, consultado el **24/09/2026**.
+Las series utilizadas en la investigación se obtienen mediante **BCRPData – Banco Central de Reserva del Perú**, consultado el **25/09/2026**.
 
 BCRPData constituye la vía de obtención de las series utilizadas. En determinados casos, la fuente primaria de la estadística corresponde a otra institución. En particular, la serie del IPC de Lima Metropolitana utilizada para medir la inflación (`PN01273PM`) tiene como fuente primaria al **Instituto Nacional de Estadística e Informática (INEI)**.
 
